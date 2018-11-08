@@ -54,27 +54,54 @@ class MysqlSearch(object):
 		#找到cursor
 		cursor = self.conn.cursor()
 		#执行SQL 元组
-		cursor.execute(sql, ('百家',))
+		cursor.execute(sql, ('百家', offset, page_size))
 		#print(dir(cursor))
 		#print(cursor.description)
 		#拿到结果 
 		#rest = cursor.fetchone()
 		rest = [dict(zip([k[0] for k in cursor.description], row)) for row in cursor.fetchall()]
-		return rest
+		
 		#处理数据
 		#关闭cursor/连接
 		cursor.close()
 		self.close_conn()
+		return rest
+
+	def add_one(self):
+		try:
+			#准备SQL
+			sql = (
+				"INSERT INTO 'news' ('title','image','content','types','is_valid') VALUES"
+				"(%s,%s,%s,%s,%s);"
+			) 
+			#获取连接和cursor
+			cursor = self.conn.cursor()
+			#执行SQL
+			#提交数据到数据库
+			cursor.execute(sql, ('标题1','kk','新闻内容', '推举',1))
+			
+			#提交事务
+			self.conn.commit()
+			cursor.close()
+			self.close_conn()
+			#关闭cursor/连接
+		except:
+			print('erro')
+			#当发生错误的时候 正确的再次提交
+			self.conn.commit()
+			#当发生错误的时候 全部回滚
+			self.conn.rollback()
 
 def main():
 	obj = MysqlSearch()
 	# rest = obj.get_one()
 	# print(rest)
 	# print(rest['title'])
-	rest = obj.get_more()
-	for item in rest:
-		print(item)
-		print('-----')
+	# rest = obj.get_more()
+	# for item in rest:
+	# 	print(item)
+	# 	print('-----')
+	obj.add_one()
 
 
 if __name__ == '__main__':
