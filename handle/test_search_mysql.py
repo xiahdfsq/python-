@@ -9,12 +9,12 @@ class MysqlSearch(object):
 		self.get_conn()
 	def get_conn(self):
 		try:
-			self.conn = MySQLdb.connet(
-				host='127.0.0.1',
+			self.conn = MySQLdb.connect(
+				host='localhost',
 				user='root',
 				passwd='',
 				db='news',
-				port=3308,
+				port=3306,
 				charset='utf8'
 			)
 			 
@@ -31,7 +31,7 @@ class MysqlSearch(object):
 			print('Error: %s' % e)
 	def get_one(self):
 		#准备SQL
-		sql = 'SELECT * FROM 'news' WHERE 'types' = %s ORDER BY 'created_at' DESC;'
+		sql = 'SELECT * FROM news WHERE types = %s ORDER BY id DESC;'
 		#找到cursor
 		cursor = self.conn.cursor()
 		#执行SQL 元组
@@ -50,7 +50,7 @@ class MysqlSearch(object):
 	def get_more(self, page, page_size):
 		offset = (page-1)*page_size
 		#准备SQL
-		sql = 'SELECT * FROM 'news' WHERE 'types' = %s ORDER BY 'created_at' DESC LIMIT %S, %s;'
+		sql = 'SELECT * FROM news WHERE types = %s ORDER BY id DESC LIMIT %S, %s;'
 		#找到cursor
 		cursor = self.conn.cursor()
 		#执行SQL 元组
@@ -71,14 +71,14 @@ class MysqlSearch(object):
 		try:
 			#准备SQL
 			sql = (
-				"INSERT INTO 'news' ('title','image','content','types','is_valid') VALUES"
-				"(%s,%s,%s,%s,%s);"
+				"INSERT INTO news (title,content,types,isValid) VALUES"
+				"(%s,%s,%s,1);"
 			) 
 			#获取连接和cursor
 			cursor = self.conn.cursor()
 			#执行SQL
 			#提交数据到数据库
-			cursor.execute(sql, ('标题1','kk','新闻内容', '推举',1))
+			cursor.execute(sql, ('标题1','新闻内容', '推举',1))
 			
 			#提交事务
 			self.conn.commit()
